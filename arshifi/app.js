@@ -1,9 +1,20 @@
 import {DEFAULT_YEARS,CATEGORIES,escapeHtml as esc,cleanName,mime,validRecord,duplicateRecords,filterRecords,suggestions,legacyPath,safeZipPath,yearSummary} from './domain.mjs?v=2.1.0';
-const DEFAULT_CLIENT_ID='1009478230630-nts46snsqal5trt8ci8i09f7idid32i2.apps.googleusercontent.com';
+const DEFAULT_CLIENT_ID='4820051748-234bcs61962amhq7bal1i7rs3qa997uh.apps.googleusercontent.com';
+const LEGACY_CLIENT_ID='1009478230630-nts46snsqal5trt8ci8i09f7idid32i2.apps.googleusercontent.com';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],num=n=>Number(n).toLocaleString('ar-IQ');
 let summaryMode=false,summaryYear=DEFAULT_YEARS.at(-1);
 const SESSION_KEY='arshifi.googleSession.v1';
 let token='',expiry=0,root='',records=[],years=[...DEFAULT_YEARS],selectedYear='',trash=false,favoriteOnly=false,editing=null,parts=[],bulkQueue=[],busy=false,ready=false,lastSync='',account=null,viewUrls=[],selection=new Set(),visible=[],pendingImport=null,ocrProposal=null,viewerGeneration=0,ignoreEditorClose=0;
+
+function migratePublicClient(){
+ try{
+  if(localStorage.getItem('arshifi.clientId')===LEGACY_CLIENT_ID)localStorage.removeItem('arshifi.clientId');
+  const oldSession=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
+  if(oldSession?.clientId===LEGACY_CLIENT_ID)clearSession();
+ }catch{clearSession()}
+}
+migratePublicClient();
+
 const clientId=()=>localStorage.getItem('arshifi.clientId')||DEFAULT_CLIENT_ID;
 function notify(s){$('#status').textContent=s;$('#status').classList.add('show');clearTimeout(notify.t);notify.t=setTimeout(()=>$('#status').classList.remove('show'),9000)}
 function fail(e){notify(e.message||'تعذر إكمال العملية')}
